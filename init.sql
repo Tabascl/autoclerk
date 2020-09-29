@@ -6,10 +6,9 @@ CREATE TABLE "product" (
 );
 
 CREATE TABLE "pricepoint" (
-	"id"	INTEGER NOT NULL UNIQUE,
 	"time"	INTEGER NOT NULL,
 	"product_ean"	TEXT NOT NULL,
 	"price"	REAL NOT NULL,
-	PRIMARY KEY("id" AUTOINCREMENT),
+	PRIMARY KEY("time","product_ean"),
 	FOREIGN KEY("product_ean") REFERENCES "product"("ean")
 );
