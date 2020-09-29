@@ -1,13 +1,18 @@
-from bs4 import BeautifulSoup
 import re
-import requests
+from typing import List
 from urllib.parse import urljoin
+
+import requests
+from bs4 import BeautifulSoup
+
+from fetcher_interface import IFetcher, ProductUpdate
 
 DOMAIN = 'https://www.alternate.de'
 
-class AlternateFetcher():
-    def fetch(self, content):
-        soup = BeautifulSoup(content, 'html.parser')
+
+class AlternateFetcher(IFetcher):
+    def fetch(self, html) -> List[ProductUpdate]:
+        soup = BeautifulSoup(html, 'html.parser')
 
         products = soup.find_all('div', class_='listRow')
 
@@ -36,7 +41,7 @@ class AlternateFetcher():
 
         ean = self._extract_ean(product)
 
-        return (ean, name, availability, price)
+        return ProductUpdate(ean, name, availability, price)
 
     def _extract_ean(self, product):
         product_link = product.find('a', class_='productLink')
@@ -44,5 +49,5 @@ class AlternateFetcher():
         product_html = requests.get(absolute_url).content
 
         soup = BeautifulSoup(product_html, 'html.parser')
-        
+
         return soup.find('td', text='EAN').find_next_sibling('td').get_text().strip()
