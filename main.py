@@ -14,12 +14,13 @@ entries = fetcher.fetch(page.content)
 from database import Database
 from discord_bot import DiscordBot
 
-bot = DiscordBot('')
+hook_url = open('webhook.url', 'r').readline()
+
+bot = DiscordBot(hook_url)
 
 db = Database('data.db')
 db.register_listener(bot)
 
-db.create_database()
 db.update(entries)
 
 pass
