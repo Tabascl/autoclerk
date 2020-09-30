@@ -5,13 +5,14 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from fetcher_interface import IFetcher, ProductUpdate
+from fetcher_interface import IFetcher
+from product import Product
 
 DOMAIN = 'https://www.alternate.de'
 
 
 class AlternateFetcher(IFetcher):
-    def fetch(self, html) -> List[ProductUpdate]:
+    def fetch(self, html) -> List[Product]:
         soup = BeautifulSoup(html, 'html.parser')
 
         products = soup.find_all('div', class_='listRow')
@@ -39,14 +40,18 @@ class AlternateFetcher(IFetcher):
         price = price_span.get_text()
         price = float(re.search('\s([0-9]*),', price).group(1))
 
-        ean = self._extract_ean(product)
+        product_link = self._extract_product_link(product)
 
-        return ProductUpdate(ean, name, availability, price)
+        ean = self._extract_ean(product_link)
 
-    def _extract_ean(self, product):
+        return Product(ean, name, availability, price, product_link)
+
+    def _extract_product_link(self, product):
         product_link = product.find('a', class_='productLink')
-        absolute_url = urljoin(DOMAIN, product_link['href'])
-        product_html = requests.get(absolute_url).content
+        return urljoin(DOMAIN, product_link['href'])
+
+    def _extract_ean(self, product_link):
+        product_html = requests.get(product_link).content
 
         soup = BeautifulSoup(product_html, 'html.parser')
 

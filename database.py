@@ -2,12 +2,21 @@ import sqlite3
 import time
 from typing import List
 
-from fetcher_interface import ProductUpdate
+from events import *
+from product import Product
 
 
 class Database():
     def __init__(self, file):
         self.connection = sqlite3.connect(file)
+        self.listeners = []
+
+    def register_listener(self, listener):
+        self.listeners.append(listener)
+
+    def notify(self, event):
+        for listener in self.listeners:
+            listener.update(event)
 
     def create_database(self):
         with open('init.sql', 'r') as sql_file:
@@ -22,28 +31,39 @@ class Database():
         )
 
     def _insert(self, product):
+        print("New product, inserting")
+
         self.connection.execute(
-            '''INSERT INTO product (ean, name, availability) 
-               VALUES (?, ?, ?)''', (product.ean, product.name, product.availability))
+            '''INSERT INTO product (ean, name, availability, product_link) 
+               VALUES (?, ?, ?, ?)''', (product.ean, product.name, product.availability, product.product_link))
 
         now = int(time.time())
         self._pricepoint_insert((now, product.ean, product.price))
 
+        self.notify(InsertEvent(product))
+
     def _update(self, db_record, product):
         if db_record[1] != product.price:
-            print("Price change detected: {} -> {}".format(product.price, db_record[1]))
+            print(
+                "Price change detected: {} -> {}".format(db_record[1], product.price))
 
             now = int(time.time())
             self._pricepoint_insert((now, product.ean, product.price))
-        
+
+            self.notify(PriceEvent(db_record[1], product))
+
         if db_record[2] != product.availability:
-            print("Availability change detected: {} -> {}".format(product.availability, db_record[2]))
+            print(
+                "Availability change detected: {} -> {}".format(db_record[2], product.availability))
+
             self.connection.execute(
                 '''UPDATE product
                 SET availability = ?
-                WHERE ean = ?''', (db_record[2], product.ean))
+                WHERE ean = ?''', (product.availability, product.ean))
 
-    def update(self, products: List[ProductUpdate]):
+            self.notify(AvailabilityEvent(db_record[2], product))
+
+    def update(self, products: List[Product]):
         cursor = self.connection.execute(
             '''SELECT product_ean, price, availability
                FROM pricepoint 

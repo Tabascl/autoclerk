@@ -1,12 +1,8 @@
 from typing import List
 
-class ProductUpdate:
-    def __init__(self, ean: str, name: str, availability: str, price: float):
-        self.ean = ean
-        self.name = name
-        self.availability = availability
-        self.price = price
+from product import Product
+
 
 class IFetcher:
-    def fetch(self, html) -> List[ProductUpdate]:
+    def fetch(self, html) -> List[Product]:
         pass

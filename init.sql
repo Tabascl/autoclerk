@@ -2,6 +2,7 @@ CREATE TABLE "product" (
 	"ean"	TEXT NOT NULL UNIQUE,
 	"name"	TEXT NOT NULL,
 	"availability"	TEXT NOT NULL,
+	"product_link" TEXT,
 	PRIMARY KEY("ean")
 );
 

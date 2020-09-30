@@ -2,24 +2,26 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-discord_hook_url = ''
-
-data = {
-    "content": "lul http://google.de/"
-}
-
-# requests.post(discord_hook_url, data=data)
-
 scrape_url = 'https://www.alternate.de/Grafikkarten/RTX-3080'
 
 page = requests.get(scrape_url)
 
-soup = BeautifulSoup(page.content, 'html.parser')
+from alternate import AlternateFetcher
 
-results = soup.find_all('div', class_='listRow')
+fetcher = AlternateFetcher()
+entries = fetcher.fetch(page.content)
 
-for item in results:
-    name_span = item.find('span', class_='name')
-    stock_span = item.find('span', class_=re.compile('stockStatus*'))
-    price_span = item.find('span', class_=re.compile('price*'))
-    print("Price: {}, Name: {},\tAvailable: {}".format(price_span.get_text().strip(), name_span.get_text().strip(), stock_span.get_text().strip()))
+from database import Database
+from discord_bot import DiscordBot
+
+bot = DiscordBot('')
+
+db = Database('data.db')
+db.register_listener(bot)
+
+db.create_database()
+db.update(entries)
+
+pass
+
+db.save()
