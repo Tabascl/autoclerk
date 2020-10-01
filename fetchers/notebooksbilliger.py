@@ -41,7 +41,8 @@ class NotebooksBilligerFetcher(IFetcher):
         print("{}: Gathering info for {}".format(self.NAME, name[:20] + "..."))
 
         price = price_span.get_text().strip()
-        price = re.search('^([0-9,]*),', price).group(1)
+        price = re.search('^([0-9,.]*),', price).group(1)
+        price = re.sub('\.', '', price)
         price = float(re.sub(',', '.', price))
 
         product_link = self._extract_product_link(product)

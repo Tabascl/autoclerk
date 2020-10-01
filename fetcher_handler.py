@@ -1,4 +1,5 @@
 import json
+from concurrent.futures.thread import ThreadPoolExecutor
 
 import requests
 
@@ -17,9 +18,10 @@ class FetcherHandler():
                 self.workers.append((fetcher(), url))
 
     def start(self):
-        products = []
+        with ThreadPoolExecutor(max_workers=5) as pool:
+            result = list(pool.map(self.fetch_site, self.workers))
 
-        for worker in self.workers:
-            products += worker[0].fetch(worker[1])
+        return [product for sublist in result for product in sublist]
 
-        return products
+    def fetch_site(self, worker):
+        return worker[0].fetch(worker[1])

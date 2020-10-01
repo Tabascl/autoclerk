@@ -10,13 +10,15 @@ bot = DiscordBot(hook_url)
 db = Database('data.db')
 db.register_listener(bot)
 
-def create_database():
-    db.create_database()
-
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', action='create_database')
 
-parser.parse_args()
+create_db = False
+parser.add_argument('-c', dest='create_db', action='store_true')
+
+args = parser.parse_args()
+
+if args.create_db:
+    db.create_database()
 
 handler = FetcherHandler('sites.json')
 entries = handler.start()
