@@ -13,6 +13,7 @@ class DiscordBot:
         print("Sending update")
 
         response = requests.post(self.hook, json=update.payload)
+        print("response: {}".format(response.status_code))
         
         if response.status_code == 429:
             timeout = response.json()['retry_after']
