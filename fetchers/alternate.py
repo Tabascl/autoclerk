@@ -5,14 +5,15 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from fetcher_interface import IFetcher
+from fetchers.fetcher_interface import IFetcher
 from product import Product
 
-NAME = 'Alternate.de'
 DOMAIN = 'https://www.alternate.de'
 
 
 class AlternateFetcher(IFetcher):
+    NAME = 'Alternate.de'
+
     def fetch(self, html) -> List[Product]:
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -36,7 +37,7 @@ class AlternateFetcher(IFetcher):
         name = name_span.get_text().strip()
         availability = stock_span.get_text().strip()
 
-        print("Alternate: Gathering info for {}".format(name[:20] + "..."))
+        print("{}: Gathering info for {}".format(self.NAME, name[:20] + "..."))
 
         price = price_span.get_text()
         price = float(re.search('\s([0-9]*),', price).group(1))
@@ -45,7 +46,7 @@ class AlternateFetcher(IFetcher):
 
         ean = self._extract_ean(product_link)
 
-        return Product(ean, name, NAME, availability, price, product_link)
+        return Product(ean, name, self.NAME, availability, price, product_link)
 
     def _extract_product_link(self, product):
         product_link = product.find('a', class_='productLink')

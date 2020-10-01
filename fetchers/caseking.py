@@ -4,13 +4,13 @@ from typing import List
 import requests
 from bs4 import BeautifulSoup
 
-from fetcher_interface import IFetcher
+from fetchers.fetcher_interface import IFetcher
 from product import Product
-
-NAME = 'Caseking.de'
 
 
 class CasekingFetcher(IFetcher):
+    NAME = 'Caseking.de'
+
     def fetch(self, html) -> List[Product]:
         soup = BeautifulSoup(html, 'html.parser')
 
@@ -49,7 +49,7 @@ class CasekingFetcher(IFetcher):
         name = "{} {}".format(name_first.get_text().strip(),
                               name_second.get_text().strip())
 
-        print("Caseking: Gathering info for {}".format(name[:20] + '...'))
+        print("{}: Gathering info for {}".format(self.NAME, name[:20] + "..."))
 
         availability_span = product.find(
             'span', class_='frontend_plugins_index_delivery_informations')
@@ -66,7 +66,7 @@ class CasekingFetcher(IFetcher):
         if re.search('^0*$', ean):
             return None
         else:
-            return Product(ean, name, NAME, availability, price, product_link)
+            return Product(ean, name, self.NAME, availability, price, product_link)
 
     def _extract_ean(self, product_link):
         product_html = requests.get(product_link).content
