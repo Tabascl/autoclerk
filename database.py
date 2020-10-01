@@ -25,8 +25,12 @@ class Database():
         self.connection.executescript(sql_script)
 
     def _new_product(self, product: Product):
-        self.connection.execute(
-            '''INSERT INTO Product (EAN, Name) VALUES (?, ?)''', (product.ean, product.name))
+        try:
+            self.connection.execute(
+                '''INSERT INTO Product (EAN, Name) VALUES (?, ?)''', (product.ean, product.name))
+        except sqlite3.IntegrityError as e:
+            print(e)
+            print("Troublesome EAN: {}".format(product.ean))
 
     def _get_product_id(self, product: Product):
         cursor = self.connection.execute(
