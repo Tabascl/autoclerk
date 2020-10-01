@@ -1,15 +1,32 @@
-CREATE TABLE "product" (
-	"ean"	TEXT NOT NULL UNIQUE,
-	"name"	TEXT NOT NULL,
-	"availability"	TEXT NOT NULL,
-	"product_link" TEXT,
-	PRIMARY KEY("ean")
+CREATE TABLE "Product" (
+	"Product_Id"	INTEGER NOT NULL UNIQUE,
+	"EAN"	TEXT NOT NULL UNIQUE,
+	"Name"	TEXT,
+	PRIMARY KEY("Product_Id" AUTOINCREMENT)
 );
 
-CREATE TABLE "pricepoint" (
-	"time"	INTEGER NOT NULL,
-	"product_ean"	TEXT NOT NULL,
-	"price"	REAL NOT NULL,
-	PRIMARY KEY("time","product_ean"),
-	FOREIGN KEY("product_ean") REFERENCES "product"("ean")
+CREATE TABLE "Shop" (
+	"Shop_Id"	INTEGER NOT NULL UNIQUE,
+	"Name"	INTEGER NOT NULL UNIQUE,
+	PRIMARY KEY("Shop_Id" AUTOINCREMENT)
+);
+
+CREATE TABLE "asks" (
+	"Product_Id"	INTEGER NOT NULL,
+	"Shop_Id"	INTEGER NOT NULL,
+	"Price"	REAL NOT NULL,
+	"Time"	INTEGER NOT NULL,
+	PRIMARY KEY("Product_Id","Shop_Id", "Time"),
+	FOREIGN KEY("Shop_Id") REFERENCES "Shop"("Shop_Id"),
+	FOREIGN KEY("Product_Id") REFERENCES "Product"("Product_Id")
+);
+
+CREATE TABLE "sells" (
+	"Product_Id"	INTEGER NOT NULL,
+	"Shop_Id"	INTEGER NOT NULL,
+	"Availability"	TEXT NOT NULL,
+	"Link"	TEXT NOT NULL,
+	PRIMARY KEY("Product_Id","Shop_Id"),
+	FOREIGN KEY("Shop_Id") REFERENCES "Shop"("Shop_Id"),
+	FOREIGN KEY("Product_Id") REFERENCES "Product"("Product_Id")
 );

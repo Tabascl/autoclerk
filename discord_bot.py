@@ -1,4 +1,5 @@
 import requests
+import time
 
 
 class DiscordBot:
@@ -12,4 +13,13 @@ class DiscordBot:
         print("Sending update")
 
         response = requests.post(self.hook, json=update.payload)
-        pass
+        
+        if response.status_code == 429:
+            timeout = response.json()['retry_after']
+
+            print("Rate limiting occurs, timout: {}ms".format(timeout))
+            time.sleep(timeout/1000)
+
+            print("Resending...")
+            response = requests.post(self.hook, json=update.payload)
+            
