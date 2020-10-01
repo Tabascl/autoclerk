@@ -11,10 +11,9 @@ from product import Product
 class CasekingFetcher(IFetcher):
     NAME = 'Caseking.de'
 
-    def fetch(self, html) -> List[Product]:
+    def fetch(self, link) -> List[Product]:
+        html = requests.get(link).content
         soup = BeautifulSoup(html, 'html.parser')
-
-        products = soup.find_all('div', class_='artbox')
 
         products = self._get_page_products(html)
 

@@ -20,7 +20,6 @@ class FetcherHandler():
         products = []
 
         for worker in self.workers:
-            html = requests.get(worker[1]).content
-            products += worker[0].fetch(html)
+            products += worker[0].fetch(worker[1])
 
         return products

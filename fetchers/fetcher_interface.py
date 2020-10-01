@@ -4,5 +4,5 @@ from product import Product
 
 
 class IFetcher:
-    def fetch(self, html) -> List[Product]:
+    def fetch(self, link) -> List[Product]:
         pass

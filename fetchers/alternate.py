@@ -14,7 +14,8 @@ DOMAIN = 'https://www.alternate.de'
 class AlternateFetcher(IFetcher):
     NAME = 'Alternate.de'
 
-    def fetch(self, html) -> List[Product]:
+    def fetch(self, link) -> List[Product]:
+        html = requests.get(link).content
         soup = BeautifulSoup(html, 'html.parser')
 
         products = soup.find_all('div', class_='listRow')
