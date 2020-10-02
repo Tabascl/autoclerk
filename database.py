@@ -25,12 +25,8 @@ class Database():
         self.connection.executescript(sql_script)
 
     def _new_product(self, product: Product):
-        try:
-            self.connection.execute(
-                '''INSERT INTO Product (EAN, Name) VALUES (?, ?)''', (product.ean, product.name))
-        except sqlite3.IntegrityError as e:
-            print(e)
-            print("Troublesome EAN: {}".format(product.ean))
+        self.connection.execute(
+            '''INSERT INTO Product (EAN, Name) VALUES (?, ?)''', (product.ean, product.name))
 
     def _get_product_id(self, product: Product):
         cursor = self.connection.execute(
@@ -110,7 +106,6 @@ class Database():
             new_lowest = False
 
         self.notify(PriceEvent(old_price, product, new_lowest))
-        
 
     def _process_ask(self, product: Product):
         cursor = self.connection.execute(
@@ -142,7 +137,8 @@ class Database():
 
     def update(self, products: List[Product]):
         # Make sure the Shop exists
-        self.connection.executemany('''INSERT OR IGNORE INTO Shop (Name) VALUES (?)''', [(product.shop,) for product in products])
+        self.connection.executemany('''INSERT OR IGNORE INTO Shop (Name) VALUES (?)''', [
+                                    (product.shop,) for product in products])
 
         cursor = self.connection.execute(
             '''SELECT EAN from Product''')
@@ -151,11 +147,11 @@ class Database():
         for product in products:
             if product.ean not in eans:
                 self._new_product(product)
+                eans.append(product.ean)
 
         for product in products:
             self._process_sell(product)
             self._process_ask(product)
-
 
     def save(self):
         self.connection.commit()
